@@ -5,8 +5,9 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.archie.sso.authorize</groupId>
-        <artifactId>centralized-authorize-manager</artifactId>
-        <version>${centralized-authorize-manager.version}</version>
+        <artifactId>centralized-authorize-parent</artifactId>
+        <version>${revision}</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>centralized-authorize-server</artifactId>
