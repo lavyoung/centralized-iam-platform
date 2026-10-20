@@ -30,6 +30,12 @@ public class ClientAuthorizationGrantTypePO {
     private Long id;
 
     /**
+     * 数据所属租户标识。
+     */
+    @TableField("tenant_id")
+    private String tenantId;
+
+    /**
      * 客户端注册主表技术主键。
      */
     @TableField("client_registration_id")

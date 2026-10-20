@@ -68,7 +68,7 @@ public class ClientRegistrationPersistenceAssembler {
 
         return registration.specification().authenticationMethods().stream()
                 .sorted()
-                .map(method -> authenticationMethodPO(clientRegistrationId, method))
+                .map(method -> authenticationMethodPO(registration, clientRegistrationId, method))
                 .toList();
     }
 
@@ -86,7 +86,7 @@ public class ClientRegistrationPersistenceAssembler {
 
         return registration.specification().grantTypes().stream()
                 .sorted()
-                .map(grantType -> grantTypePO(clientRegistrationId, grantType))
+                .map(grantType -> grantTypePO(registration, clientRegistrationId, grantType))
                 .toList();
     }
 
@@ -104,7 +104,7 @@ public class ClientRegistrationPersistenceAssembler {
 
         return registration.specification().redirectUris().stream()
                 .sorted((left, right) -> left.value().compareTo(right.value()))
-                .map(redirectUri -> redirectUriPO(clientRegistrationId, redirectUri))
+                .map(redirectUri -> redirectUriPO(registration, clientRegistrationId, redirectUri))
                 .toList();
     }
 
@@ -122,7 +122,7 @@ public class ClientRegistrationPersistenceAssembler {
 
         return registration.specification().scopes().stream()
                 .sorted()
-                .map(scope -> scopePO(clientRegistrationId, scope))
+                .map(scope -> scopePO(registration, clientRegistrationId, scope))
                 .toList();
     }
 
@@ -215,32 +215,40 @@ public class ClientRegistrationPersistenceAssembler {
         }
     }
 
-    private ClientAuthenticationMethodPO authenticationMethodPO(Long clientRegistrationId, ClientAuthenticationMethod method) {
+    private ClientAuthenticationMethodPO authenticationMethodPO(ClientRegistration registration, Long clientRegistrationId, ClientAuthenticationMethod method) {
         ClientAuthenticationMethodPO result = new ClientAuthenticationMethodPO();
+        result.setTenantId(tenantIdOf(registration));
         result.setClientRegistrationId(clientRegistrationId);
         result.setAuthenticationMethod(method.getMethod());
         return result;
     }
 
-    private ClientAuthorizationGrantTypePO grantTypePO(Long clientRegistrationId, AuthorizationGrantType grantType) {
+    private ClientAuthorizationGrantTypePO grantTypePO(ClientRegistration registration, Long clientRegistrationId, AuthorizationGrantType grantType) {
         ClientAuthorizationGrantTypePO result = new ClientAuthorizationGrantTypePO();
+        result.setTenantId(tenantIdOf(registration));
         result.setClientRegistrationId(clientRegistrationId);
         result.setGrantType(grantType.getCode());
         return result;
     }
 
-    private ClientRedirectUriPO redirectUriPO(Long clientRegistrationId, RedirectUri redirectUri) {
+    private ClientRedirectUriPO redirectUriPO(ClientRegistration registration, Long clientRegistrationId, RedirectUri redirectUri) {
         ClientRedirectUriPO result = new ClientRedirectUriPO();
+        result.setTenantId(tenantIdOf(registration));
         result.setClientRegistrationId(clientRegistrationId);
         result.setRedirectUri(redirectUri.value());
         return result;
     }
 
-    private ClientScopePO scopePO(Long clientRegistrationId, String scope) {
+    private ClientScopePO scopePO(ClientRegistration registration, Long clientRegistrationId, String scope) {
         ClientScopePO result = new ClientScopePO();
+        result.setTenantId(tenantIdOf(registration));
         result.setClientRegistrationId(clientRegistrationId);
         result.setScope(scope);
         return result;
+    }
+
+    private String tenantIdOf(ClientRegistration registration) {
+        return registration.specification().tenantId().value();
     }
 
     private DataRetrievalFailureException corruptedData() {

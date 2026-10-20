@@ -62,9 +62,13 @@ class ClientRegistrationPersistenceMetadataTest {
                 () -> assertColumn(ClientRegistrationPO.class, "tenantId", "tenant_id"),
                 () -> assertColumn(ClientRegistrationPO.class, "clientSecretHash", "client_secret_hash"),
                 () -> assertColumn(ClientRegistrationPO.class, "authorizationCodeTtlSeconds", "authorization_code_ttl_seconds"),
+                () -> assertColumn(ClientAuthenticationMethodPO.class, "tenantId", "tenant_id"),
                 () -> assertColumn(ClientAuthenticationMethodPO.class, "authenticationMethod", "authentication_method"),
+                () -> assertColumn(ClientAuthorizationGrantTypePO.class, "tenantId", "tenant_id"),
                 () -> assertColumn(ClientAuthorizationGrantTypePO.class, "grantType", "grant_type"),
+                () -> assertColumn(ClientRedirectUriPO.class, "tenantId", "tenant_id"),
                 () -> assertColumn(ClientRedirectUriPO.class, "redirectUri", "redirect_uri"),
+                () -> assertColumn(ClientScopePO.class, "tenantId", "tenant_id"),
                 () -> assertColumn(ClientScopePO.class, "scope", "scope")
         );
     }
