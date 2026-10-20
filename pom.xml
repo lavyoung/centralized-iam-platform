@@ -9,17 +9,26 @@
         <version>3.2.4</version>
         <relativePath/>
     </parent>
-    
-    <groupId>com.archie.sso.authorize</groupId>
-    <artifactId>centralized-authorize-parent</artifactId>
+
+    <groupId>com.lavyoung</groupId>
+    <artifactId>centralized-iam-platform</artifactId>
     <version>${revision}</version>
     <description>统一鉴权认证服务</description>
     <packaging>pom</packaging>
 
     <!--模块管理-->
     <modules>
+        <!-- Target architecture modules. Legacy modules remain during incremental migration. -->
+        <module>centralized-iam-shared-kernel</module>
+        <module>centralized-iam-api-contract</module>
+        <module>centralized-iam-domain</module>
+        <module>centralized-iam-application</module>
+        <module>centralized-iam-adapter-inbound</module>
+        <module>centralized-iam-adapter-outbound</module>
+        <module>centralized-iam-bootstrap</module>
+        <module>centralized-iam-sdk-java-core</module>
+        <module>centralized-iam-sdk-spring-boot-starter</module>
         <module>centralized-authorize-server</module>
-        <module>centralized-authorize-client</module>
         <module>centralized-authorize-common</module>
         <module>centralized-authorize-entity</module>
     </modules>
@@ -32,35 +41,17 @@
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <oauth.server.version>1.4.2</oauth.server.version>
-        <oauth.client.version>3.3.1</oauth.client.version>
         <mysql.version>8.4.0</mysql.version>
         <druid.version>1.2.20</druid.version>
         <mybatis-plus.version>3.5.7</mybatis-plus.version>
         <mapstruct.version>1.5.5.Final</mapstruct.version>
         <hutool.version>5.8.29</hutool.version>
+        <archunit.version>1.2.1</archunit.version>
     </properties>
 
     <!--版本管理-->
     <dependencyManagement>
         <dependencies>
-            <!-- OAuth2授权 -->
-            <dependency>
-                <groupId>org.springframework.security</groupId>
-                <artifactId>spring-security-oauth2-authorization-server</artifactId>
-                <version>${oauth.server.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>com.nimbusds</groupId>
-                        <artifactId>nimbus-jose-jwt</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-oauth2-client</artifactId>
-                <version>${oauth.client.version}</version>
-            </dependency>
             <dependency>
                 <groupId>com.alibaba</groupId>
                 <artifactId>druid-spring-boot-3-starter</artifactId>
@@ -72,12 +63,12 @@
                 <version>${mybatis-plus.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.archie.sso.authorize</groupId>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>centralized-authorize-common</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.archie.sso.authorize</groupId>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>centralized-authorize-entity</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -119,6 +110,48 @@
                 <artifactId>rocketmq-spring-boot-starter</artifactId>
                 <version>2.3.3</version>
             </dependency>
+            <dependency>
+                <groupId>com.tngtech.archunit</groupId>
+                <artifactId>archunit-junit5</artifactId>
+                <version>${archunit.version}</version>
+            </dependency>
+
+            <!-- Target architecture modules -->
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>centralized-iam-shared-kernel</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>centralized-iam-api-contract</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>centralized-iam-domain</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>centralized-iam-application</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>centralized-iam-adapter-inbound</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>centralized-iam-adapter-outbound</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>centralized-iam-sdk-java-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -136,13 +169,10 @@
                     <encoding>${project.build.sourceEncoding}</encoding>
                 </configuration>
             </plugin>
-            <!--跳过测试-->
+            <!-- Tests run by default; use -DskipTests explicitly only when needed. -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <skipTests>true</skipTests>
-                </configuration>
             </plugin>
             <!--源码打包-->
             <plugin>
@@ -150,7 +180,7 @@
                 <artifactId>maven-source-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>centralized-authorize-manager</id>
+                        <id>centralized-iam-platform</id>
                         <goals>
                             <goal>jar</goal>
                         </goals>

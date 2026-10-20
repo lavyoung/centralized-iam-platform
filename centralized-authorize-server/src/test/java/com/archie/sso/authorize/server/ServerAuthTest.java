@@ -1,28 +1,42 @@
 package com.archie.sso.authorize.server;
 
+import com.archie.sso.authorize.server.service.AuthorizationService;
+import com.archie.sso.authorize.server.service.ClientService;
+import com.archie.sso.authorize.server.service.UserService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
+import org.springframework.security.oauth2.server.authorization.InMemoryOAuth2AuthorizationService;
+import org.springframework.security.oauth2.server.authorization.OAuth2Authorization;
+import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
+import org.springframework.security.oauth2.server.authorization.client.InMemoryRegisteredClientRepository;
+import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
+@SpringBootTest(properties = "iam.messaging.rocketmq.enabled=false")
 @AutoConfigureMockMvc
 public class ServerAuthTest {
 
@@ -34,6 +48,51 @@ public class ServerAuthTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @MockBean
+    private ClientService clientService;
+
+    @MockBean
+    private AuthorizationService authorizationService;
+
+    @MockBean
+    private UserService userService;
+
+    /**
+     * Keeps protocol tests on the real security filter chain while replacing environment-bound persistence ports
+     * with the official Spring Authorization Server in-memory implementations.
+     */
+    @BeforeEach
+    void setUpInMemoryStores() {
+        RegisteredClient registeredClient = RegisteredClient.withId(UUID.randomUUID().toString())
+                .clientId(CLIENT_ID)
+                .clientSecret(this.passwordEncoder.encode(CLIENT_SECRET))
+                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+                .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
+                .scope("profile")
+                .scope("cam:read")
+                .build();
+        InMemoryRegisteredClientRepository clientStore =
+                new InMemoryRegisteredClientRepository(registeredClient);
+        InMemoryOAuth2AuthorizationService authorizationStore = new InMemoryOAuth2AuthorizationService();
+
+        when(this.clientService.findById(anyString())).thenAnswer(invocation ->
+                clientStore.findById(invocation.getArgument(0)));
+        when(this.clientService.findByClientId(anyString())).thenAnswer(invocation ->
+                clientStore.findByClientId(invocation.getArgument(0)));
+        doAnswer(invocation -> {
+            authorizationStore.save(invocation.getArgument(0, OAuth2Authorization.class));
+            return null;
+        }).when(this.authorizationService).save(any(OAuth2Authorization.class));
+        when(this.authorizationService.findById(anyString())).thenAnswer(invocation ->
+                authorizationStore.findById(invocation.getArgument(0)));
+        when(this.authorizationService.findByToken(anyString(), nullable(OAuth2TokenType.class)))
+                .thenAnswer(invocation -> authorizationStore.findByToken(
+                        invocation.getArgument(0), invocation.getArgument(1)));
+    }
 
     @Test
     void performTokenRequestWhenValidClientCredentialsThenOk() throws Exception {
@@ -153,31 +212,4 @@ public class ServerAuthTest {
 
     }
 
-    @Test
-    public void test() {
-        System.out.println("start...");
-//        FastAutoGenerator.create("jdbc:mysql://192.168.3.100:3306/cam?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC", "root", "123456")
-//                // 全局配置
-//                .globalConfig((scanner, builder) -> builder.author(scanner.apply("lavyoung1325"))
-//                        .outputDir("F://tmp")
-//                )
-//                // 包配置
-//                .packageConfig((scanner, builder) -> builder.parent(scanner.apply("com.inge.sso.authorize.server"))
-//                        .pathInfo(Collections.singletonMap(OutputFile.mapper, "F://tmp")))
-//                // 策略配置
-//                .strategyConfig((scanner, builder) -> builder.addInclude(getTables(scanner.apply("cam_user,cam_system_authority,cam_role_authority," +
-//                                "cam_role,cam_user,role")))
-//                        .addTablePrefix("cam_")
-//                        .mapperBuilder().enableBaseResultMap().enableBaseColumnList().enableFileOverride()
-//                        .controllerBuilder().enableRestStyle()
-//                        .entityBuilder().enableLombok()
-//                        .build())
-//                .templateEngine(new FreemarkerTemplateEngine())
-//                .execute();
-//        System.out.println("end...");
-    }
-
-    protected static List<String> getTables(String tables) {
-        return "all".equals(tables) ? Collections.emptyList() : Arrays.asList(tables.split(","));
-    }
 }

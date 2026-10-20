@@ -1,22 +1,20 @@
 package com.archie.sso.authorize.server.service.impl;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import com.archie.sso.authorize.server.entity.OAuth2AuthorizationEntity;
+import com.archie.sso.authorize.server.mapper.OAuth2AuthorizationMapper;
+import com.archie.sso.authorize.server.service.AuthorizationService;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.Module;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.lang.Nullable;
 import org.springframework.security.jackson2.SecurityJackson2Modules;
-import org.springframework.security.oauth2.core.AuthorizationGrantType;
-import org.springframework.security.oauth2.core.OAuth2AccessToken;
-import org.springframework.security.oauth2.core.OAuth2DeviceCode;
-import org.springframework.security.oauth2.core.OAuth2RefreshToken;
-import org.springframework.security.oauth2.core.OAuth2UserCode;
+import org.springframework.security.oauth2.core.*;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.server.authorization.OAuth2Authorization;
@@ -30,16 +28,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import com.archie.sso.authorize.server.entity.OAuth2AuthorizationEntity;
-import com.archie.sso.authorize.server.mapper.OAuth2AuthorizationMapper;
-import com.archie.sso.authorize.server.service.AuthorizationService;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.Module;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import jakarta.annotation.Resource;
+import java.util.*;
 
 /**
  * Created by IntelliJ IDEA
@@ -149,7 +138,7 @@ public class OAuth2AuthorizationServiceImpl extends ServiceImpl<OAuth2Authorizat
 
     private OAuth2Authorization findBy(Collection<OAuth2AuthorizationEntity> data) {
         List<OAuth2Authorization> authorizations = mapRow(data);
-        return !authorizations.isEmpty() ? authorizations.getFirst() : null;
+        return !authorizations.isEmpty() ? authorizations.get(0) : null;
     }
 
     private List<OAuth2Authorization> mapRow(Collection<OAuth2AuthorizationEntity> data) {

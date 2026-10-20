@@ -4,8 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.archie.sso.authorize</groupId>
-        <artifactId>centralized-authorize-parent</artifactId>
+        <groupId>com.lavyoung</groupId>
+        <artifactId>centralized-iam-platform</artifactId>
         <version>${revision}</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
@@ -15,7 +15,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.archie.sso.authorize</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>centralized-authorize-entity</artifactId>
         </dependency>
         <!--授权服务依赖-->

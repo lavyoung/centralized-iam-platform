@@ -1,8 +1,10 @@
 package com.archie.sso.authorize.server.authorization.pwd.converter;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import com.archie.sso.authorize.common.granter.CustomAuthorizationGrantType;
+import com.archie.sso.authorize.common.utils.OAuth2EndpointUtils;
+import com.archie.sso.authorize.server.authorization.pwd.token.OAuth2PasswordAuthenticationToken;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
@@ -11,12 +13,8 @@ import org.springframework.security.web.authentication.AuthenticationConverter;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 
-import com.archie.sso.authorize.common.granter.CustomAuthorizationGrantType;
-import com.archie.sso.authorize.common.utils.OAuth2EndpointUtils;
-import com.archie.sso.authorize.server.authorization.pwd.token.OAuth2PasswordAuthenticationToken;
-
-import jakarta.servlet.http.HttpServletRequest;
-import lombok.extern.slf4j.Slf4j;
+import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 public class OAuth2PasswordAuthenticationConverter implements AuthenticationConverter {
@@ -41,7 +39,7 @@ public class OAuth2PasswordAuthenticationConverter implements AuthenticationConv
         parameters.forEach((key, value) -> {
             if (!key.equals(OAuth2ParameterNames.USERNAME) && !key.equals(OAuth2ParameterNames.PASSWORD) && !key.equals(
                     OAuth2ParameterNames.CLIENT_ID)) {
-                additionalParameters.put(key, value.getFirst());
+                additionalParameters.put(key, value.get(0));
             }
         });
         return new OAuth2PasswordAuthenticationToken(username, password, authentication, additionalParameters);

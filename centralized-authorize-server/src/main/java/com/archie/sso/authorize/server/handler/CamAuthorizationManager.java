@@ -1,12 +1,11 @@
 package com.archie.sso.authorize.server.handler;
 
-import java.util.function.Supplier;
-
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
-import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
+
+import java.util.function.Supplier;
 
 /**
  * @author lavyoung1325 <2034549297@qq.com>
@@ -20,13 +19,6 @@ public class CamAuthorizationManager implements AuthorizationManager<RequestAuth
 
     @Override
     public AuthorizationDecision check(Supplier<Authentication> authentication, RequestAuthorizationContext object) {
-        return null;
-    }
-
-    @Override
-    public AuthorizationResult authorize(Supplier<Authentication> authentication, RequestAuthorizationContext object) {
-
-
         return new AuthorizationDecision(true);
     }
 }
