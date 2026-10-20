@@ -54,7 +54,8 @@ centralized-iam-platform
 shared-kernel <- domain <- application <- adapter-inbound
                          <- adapter-outbound
 api-contract  -------------------------> adapter-inbound
-adapter-inbound + adapter-outbound ----> bootstrap
+bootstrap ----> adapter-inbound
+          └--> adapter-outbound
 ```
 
 `domain` 和 `application` 不得依赖 Spring Authorization Server、Web、MyBatis、Redis 或具体数据库驱动。架构边界由 Maven 依赖和
@@ -69,23 +70,21 @@ com.lavyoung.iam
 ├── shared
 ├── contract
 ├── domain
-│   ├── identity
-│   ├── credential
-│   ├── clientregistration
-│   ├── authentication
-│   ├── authorization
-│   ├── consent
-│   └── audit
+│   └── <context>/{model,event,repository,service,policy}
 ├── application
-│   └── <context>/{command,query,port,service}
+│   └── <context>/{command,query,result,port,service}
 ├── adapter
-│   ├── inbound/{rest,oauth2,oidc,web}
-│   └── outbound/{persistence,cache,crypto,audit,messaging}
+│   ├── inbound/<technology>/<context>
+│   └── outbound/<technology>/<context>/<role>
 └── bootstrap
 ```
 
 Maven 模块负责架构隔离，模块内部包负责限界上下文和具体适配器分类。首期不为每个业务域复制一整套 Maven
 模块；当某个限界上下文需要独立部署时，再从模块化单体中提取。
+
+出站适配器采用 `technology -> context -> role` 顺序。例如客户端持久化使用
+`persistence.clientregistration.{po,dao,model,assembler,repository}`，避免按 PO、DAO 等角色把同一业务适配器拆散。
+机械字段转换优先使用 MapStruct；聚合恢复、领域工厂调用和持久化异常转换允许使用手写 `*Assembler`。
 
 ## 4. 核心能力范围
 
@@ -116,7 +115,7 @@ Maven 模块负责架构隔离，模块内部包负责限界上下文和具体�
 
 - 新表统一使用 `iam_` 前缀；所有租户归属表包含 `tenant_id`，首期使用默认租户。
 - 标识由应用生成，避免依赖数据库自增、序列或方言特性。
-- Flyway 脚本分为公共脚本与 `mysql`、`postgresql` 方言脚本。
+- Flyway 脚本分为公共脚本与 `mysql`、`postgresql` 方言脚本；数据库 profile 显式选择 `common` 和当前数据库目录，不扫描包含全部方言的根目录。
 - SQL 禁止依赖单一数据库的分页、JSON、布尔值或时间隐式转换。
 - MySQL 与 PostgreSQL 均建立 Testcontainers 集成测试流水线。
 - 高频索引至少覆盖用户登录标识、`client_id`、授权状态、token 标识、用户角色和角色权限关系。
