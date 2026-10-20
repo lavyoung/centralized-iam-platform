@@ -1,7 +1,7 @@
 package com.lavyoung.iam.application.clientregistration.port.in;
 
-import com.lavyoung.iam.domain.clientregistration.model.ClientRegistration;
-import com.lavyoung.iam.domain.clientregistration.model.ClientRegistrationSpec;
+import com.lavyoung.iam.application.clientregistration.command.RegisterClientCommand;
+import com.lavyoung.iam.application.clientregistration.result.RegisteredClientResult;
 import com.lavyoung.iam.shared.error.IamException;
 
 /**
@@ -18,20 +18,20 @@ public interface RegisterClientUseCase {
     /**
      * 注册不持有客户端密钥的公共客户端。
      *
-     * @param spec 已完成领域校验的客户端注册配置
-     * @return 已创建并持久化的客户端注册聚合
+     * @param command 客户端注册命令
+     * @return 已创建并持久化的客户端注册结果
      * @throws IamException 当客户端标识重复或配置不适用于公共客户端时抛出
      */
-    ClientRegistration registerPublic(ClientRegistrationSpec spec);
+    RegisteredClientResult registerPublic(RegisterClientCommand command);
 
     /**
      * 注册使用密钥认证的机密客户端。
      *
-     * @param spec      已完成领域校验的客户端注册配置
+     * @param command   客户端注册命令
      * @param rawSecret 客户端明文密钥，仅允许在本次调用链中短暂存在
-     * @return 已创建并持久化的客户端注册聚合
+     * @return 已创建并持久化的客户端注册结果
      * @throws IamException             当客户端标识重复或配置不适用于机密客户端时抛出
      * @throws IllegalArgumentException 当明文密钥为空时抛出
      */
-    ClientRegistration registerConfidential(ClientRegistrationSpec spec, CharSequence rawSecret);
+    RegisteredClientResult registerConfidential(RegisterClientCommand command, CharSequence rawSecret);
 }
