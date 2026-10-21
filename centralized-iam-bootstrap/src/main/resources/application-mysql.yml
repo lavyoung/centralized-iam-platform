@@ -1,4 +1,7 @@
 spring:
+  datasource:
+    url: ${IAM_DATASOURCE_URL:jdbc:mysql://localhost:3306/centralized_iam?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC}
+    driver-class-name: com.mysql.cj.jdbc.Driver
   flyway:
     locations:
       - classpath:db/migration/common

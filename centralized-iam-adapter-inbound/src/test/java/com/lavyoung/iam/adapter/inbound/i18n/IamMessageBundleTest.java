@@ -10,6 +10,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -25,7 +27,25 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class IamMessageBundleTest {
 
-    private static final Pattern PLACEHOLDER_PATTERN = Pattern.compile("\\{(\\d+)}");
+    private static final Pattern PLACEHOLDER_PATTERN = Pattern.compile("\\{([^{}]+)}");
+
+    private static final Set<String> VALIDATION_MESSAGE_KEYS = Set.of(
+            "validation.client-id.required",
+            "validation.display-name.required",
+            "validation.authentication-methods.required",
+            "validation.grant-types.required",
+            "validation.redirect-uris.required",
+            "validation.scopes.required",
+            "validation.collection-element.required",
+            "validation.token-lifetime.positive",
+            "validation.client-secret.required",
+            "validation.client-secret.size"
+    );
+
+    private static final Set<String> MESSAGE_KEYS = Stream.concat(
+            Arrays.stream(IamErrorCode.values()).map(IamErrorCode::getMessageKey),
+            VALIDATION_MESSAGE_KEYS.stream()
+    ).collect(Collectors.toUnmodifiableSet());
 
     private static final List<String> RESOURCE_PATHS = List.of(
             "i18n/messages.properties",
@@ -34,7 +54,7 @@ class IamMessageBundleTest {
     );
 
     /**
-     * Given 全部错误码与语言资源，When 检查资源键，Then 每种语言都必须提供非空文案。
+     * Given 全部错误码、校验键与语言资源，When 检查资源键，Then 每种语言都必须提供非空文案。
      *
      * @throws IOException 当测试资源无法读取时抛出
      */
@@ -43,9 +63,9 @@ class IamMessageBundleTest {
         for (String resourcePath : RESOURCE_PATHS) {
             Properties messages = load(resourcePath);
 
-            assertAll(Arrays.stream(IamErrorCode.values()).map(errorCode -> () -> {
-                String message = messages.getProperty(errorCode.getMessageKey(), "");
-                assertFalse(message.isBlank(), resourcePath + " 缺少 " + errorCode.getMessageKey());
+            assertAll(MESSAGE_KEYS.stream().map(messageKey -> () -> {
+                String message = messages.getProperty(messageKey, "");
+                assertFalse(message.isBlank(), resourcePath + " 缺少 " + messageKey);
             }));
         }
     }
@@ -62,8 +82,7 @@ class IamMessageBundleTest {
         for (String resourcePath : RESOURCE_PATHS.subList(1, RESOURCE_PATHS.size())) {
             Properties localized = load(resourcePath);
 
-            for (IamErrorCode errorCode : IamErrorCode.values()) {
-                String messageKey = errorCode.getMessageKey();
+            for (String messageKey : MESSAGE_KEYS) {
                 assertEquals(
                         placeholders(baseline.getProperty(messageKey)),
                         placeholders(localized.getProperty(messageKey)),

@@ -113,7 +113,7 @@ class RegisterClientRequestValidationTest {
         // Then
         assertEquals(1, violations.size());
         assertEquals("clientSecret", violations.iterator().next().getPropertyPath().toString());
-        assertEquals("{iam.validation.client-secret.size}", violations.iterator().next().getMessageTemplate());
+        assertEquals("{validation.client-secret.size}", violations.iterator().next().getMessageTemplate());
     }
 
     /**

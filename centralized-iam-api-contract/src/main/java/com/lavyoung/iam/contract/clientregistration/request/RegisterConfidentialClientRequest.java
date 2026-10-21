@@ -24,35 +24,35 @@ import java.util.Set;
  * @date 2026/10/20
  */
 public record RegisterConfidentialClientRequest(
-        @NotBlank(message = "{iam.validation.client-id.required}")
+        @NotBlank(message = "{validation.client-id.required}")
         String clientId,
 
-        @NotBlank(message = "{iam.validation.display-name.required}")
+        @NotBlank(message = "{validation.display-name.required}")
         String displayName,
 
-        @NotEmpty(message = "{iam.validation.authentication-methods.required}")
-        Set<@NotBlank(message = "{iam.validation.collection-element.required}") String> authenticationMethods,
+        @NotEmpty(message = "{validation.authentication-methods.required}")
+        Set<@NotBlank(message = "{validation.collection-element.required}") String> authenticationMethods,
 
-        @NotEmpty(message = "{iam.validation.grant-types.required}")
-        Set<@NotBlank(message = "{iam.validation.collection-element.required}") String> grantTypes,
+        @NotEmpty(message = "{validation.grant-types.required}")
+        Set<@NotBlank(message = "{validation.collection-element.required}") String> grantTypes,
 
-        @NotNull(message = "{iam.validation.redirect-uris.required}")
-        Set<@NotBlank(message = "{iam.validation.collection-element.required}") String> redirectUris,
+        @NotNull(message = "{validation.redirect-uris.required}")
+        Set<@NotBlank(message = "{validation.collection-element.required}") String> redirectUris,
 
-        @NotEmpty(message = "{iam.validation.scopes.required}")
-        Set<@NotBlank(message = "{iam.validation.collection-element.required}") String> scopes,
+        @NotEmpty(message = "{validation.scopes.required}")
+        Set<@NotBlank(message = "{validation.collection-element.required}") String> scopes,
 
-        @Positive(message = "{iam.validation.token-lifetime.positive}")
+        @Positive(message = "{validation.token-lifetime.positive}")
         long accessTokenTtlSeconds,
 
-        @Positive(message = "{iam.validation.token-lifetime.positive}")
+        @Positive(message = "{validation.token-lifetime.positive}")
         long refreshTokenTtlSeconds,
 
-        @Positive(message = "{iam.validation.token-lifetime.positive}")
+        @Positive(message = "{validation.token-lifetime.positive}")
         long authorizationCodeTtlSeconds,
 
-        @NotBlank(message = "{iam.validation.client-secret.required}")
-        @Size(min = 32, max = 128, message = "{iam.validation.client-secret.size}")
+        @NotBlank(message = "{validation.client-secret.required}")
+        @Size(min = 32, max = 128, message = "{validation.client-secret.size}")
         String clientSecret
 ) {
 

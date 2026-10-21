@@ -1,0 +1,29 @@
+server:
+  port: ${IAM_SERVER_PORT:9000}
+  shutdown: graceful
+
+spring:
+  application:
+    name: centralized-iam-platform
+  profiles:
+    default: mysql
+  datasource:
+    username: ${IAM_DATASOURCE_USERNAME}
+    password: ${IAM_DATASOURCE_PASSWORD}
+    hikari:
+      minimum-idle: ${IAM_DATASOURCE_MINIMUM_IDLE:2}
+      maximum-pool-size: ${IAM_DATASOURCE_MAXIMUM_POOL_SIZE:20}
+      connection-timeout: ${IAM_DATASOURCE_CONNECTION_TIMEOUT:30000}
+  flyway:
+    enabled: true
+    clean-disabled: true
+    validate-on-migrate: true
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: false
+  global-config:
+    banner: false
